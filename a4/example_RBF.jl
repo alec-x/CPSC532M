@@ -23,15 +23,15 @@ yvalid = y[validNdx]
 include("leastSquares.jl")
 minErr = Inf
 bestSigma = []
+lambda = 1e-12
 for sigma in 2.0.^(-15:15)
-
 	# Train on the training set
-	model = leastSquaresRBF(Xtrain,ytrain,sigma)
+	model = leastSquaresRBF(Xtrain,ytrain,sigma, lambda)
 
 	# Compute the error on the validation set
 	yhat = model.predict(Xvalid)
 	validError = sum((yhat - yvalid).^2)/(n/2)
-	@printf("With sigma = %.3f, validError = %.2f\n",sigma,validError)
+	@printf("With sigma = %.3f, , lambda = %.3f, validError = %.2f\n",sigma, lambda, validError)
 
 	# Keep track of the lowest validation error
 	if validError < minErr

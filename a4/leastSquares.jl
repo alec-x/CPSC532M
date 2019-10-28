@@ -1,5 +1,5 @@
 include("misc.jl")
-
+using LinearAlgebra
 function leastSquares(X,y)
 
 	# Find regression weights minimizing squared error
@@ -63,12 +63,12 @@ function binaryLeastSquares(X,y)
 end
 
 
-function leastSquaresRBF(X,y,sigma)
+function leastSquaresRBF(X,y,sigma, lambda)
 	(n,d) = size(X)
 
 	Z = rbf(X,X,sigma)
 
-	w = (Z'*Z)\(Z'*y)
+	w = (Z'*Z+lambda*I)\(Z'*y)
 
 	predict(Xhat) = rbf(Xhat,X,sigma)*w
 
