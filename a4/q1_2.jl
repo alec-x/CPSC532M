@@ -33,35 +33,47 @@ end
 # Find best value of RBF variance parameter,
 #	training on the train set and validating on the test set
 include("leastSquares.jl")
-minErr = Inf
-bestSigma = []
-lambda = 1e-12
-for sigma in 2.0.^(-15:15)
-	# Train on the training set
-	model = leastSquaresRBF(Xtrain,ytrain,sigma, lambda)
+meanBestSigma = 0
 
-	# Compute the error on the validation set
-	yhat = model.predict(Xvalid)
-	validError = sum((yhat - yvalid).^2)/(n/2)
-	@printf("With sigma = %.3f, , lambda = %.3f, validError = %.2f\n",sigma, lambda, validError)
+for i in 1:k
+	bestSigma = []
+	minErr = Inf
+	lambda = 1e-12
+	for sigma in 2.0.^(-15:15)
+		# Train on the training set
+		model = leastSquaresRBF(Xtrain[:,:,i],ytrain[:,:,i],sigma, lambda)
 
-	# Keep track of the lowest validation error
-	if validError < minErr
-		global minErr = validError
-		global bestSigma = sigma
+		# Compute the error on the validation set
+		yhat = model.predict(Xvalid[:,:,i])
+		validError = sum((yhat - yvalid[:,:,i]).^2)/(n/2)
+		# @printf("With sigma = %.3f, , lambda = %.3f, validError = %.2f\n",sigma, lambda, validError)
+
+		# Keep track of the lowest validation error
+		if validError < minErr
+			minErr = validError
+			bestSigma = sigma
+		end
+
 	end
+	# Now fit the model based on the full dataset
+	model = leastSquaresRBF(X,y,bestSigma)
 
+	# Report the error on the test set
+	t = size(Xvalid,1)
+	yhat = model.predict(Xvalid[:,:,i])
+	testError = sum((yhat - yvalid[:,:,i]).^2)/t
+	@printf("With best sigma of %.3f, testError = %.2f\n",bestSigma,testError)
+	global meanBestSigma += bestSigma
 end
 
-# Now fit the model based on the full dataset
-model = leastSquaresRBF(X,y,bestSigma)
+meanBestSigma /= k
+model = leastSquaresRBF(X,y,meanBestSigma)
 
 # Report the error on the test set
 t = size(Xtest,1)
 yhat = model.predict(Xtest)
 testError = sum((yhat - ytest).^2)/t
-@printf("With best sigma of %.3f, testError = %.2f\n",bestSigma,testError)
-
+@printf("With mean best sigma of %.3f, testError = %.2f\n",meanBestSigma,testError)
 # Plot model
 using PyPlot
 figure()
