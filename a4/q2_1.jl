@@ -16,13 +16,6 @@ t = size(Xtest,1)
 Xtest = standardizeCols(Xtest,mu=mu,sigma=sigma)
 Xtest = [ones(t,1) Xtest]
 
-# Fit logistic regression model
-#=include("leastSquares.jl")
-model = binaryLeastSquares(X,y) =#
-#=
-include("logReg.jl")
-model = logReg(X,y) =#
-
 lambda = 1.0
 
 # Fit logistic regression model with L2-regularization
