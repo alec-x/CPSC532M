@@ -19,8 +19,8 @@ Xtest = [ones(t,1) Xtest]
 lambda = 1.0
 
 # Fit logistic regression model with L2-regularization
-include("logRegL2.jl")
-model = logRegL2(X,y,lambda)
+include("logRegL1.jl")
+model = logRegL1(X,y,lambda)
 
 # Count number of non-zeroes in model
 numberOfNonZero = sum(model.w .!= 0)
