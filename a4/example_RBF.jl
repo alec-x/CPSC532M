@@ -23,7 +23,7 @@ yvalid = y[validNdx]
 include("leastSquares.jl")
 minErr = Inf
 bestSigma = []
-lambda = 1e-12
+lambda = 0
 for sigma in 2.0.^(-15:15)
 	# Train on the training set
 	model = leastSquaresRBF(Xtrain,ytrain,sigma, lambda)
@@ -42,7 +42,7 @@ for sigma in 2.0.^(-15:15)
 end
 
 # Now fit the model based on the full dataset
-model = leastSquaresRBF(X,y,bestSigma)
+model = leastSquaresRBF(X,y,bestSigma, lambda)
 
 # Report the error on the test set
 t = size(Xtest,1)
