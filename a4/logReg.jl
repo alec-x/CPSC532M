@@ -135,7 +135,7 @@ end
 
 function logisticL2Obj(w,X,y,lambda)
 	yXw = y.*(X*w)
-	f = sum(log.(1 .+ exp.(-yXw))) + ((lambda/2)*(w'*w))
+	f = sum(log.(1 .+ exp.(-yXw))) + ((lambda/2)*(w'*w))[1]
 	g = (-X'*(y./(1 .+ exp.(yXw)))) + (lambda * w)
 	return (f,g)
 end
