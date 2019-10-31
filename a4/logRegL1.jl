@@ -25,7 +25,7 @@ end
 
 function logisticL1Obj(w,X,y,lambda)
 	yXw = y.*(X*w)
-	f = sum(log.(1 .+ exp.(-yXw))) + lambda*sum(w)
+	f = sum(log.(1 .+ exp.(-yXw))) + lambda*sum(abs.(w))
 	g = (-X'*(y./(1 .+ exp.(yXw))))
 	return (f,g)
 end
