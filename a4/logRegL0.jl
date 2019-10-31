@@ -7,7 +7,7 @@ function logRegL0(X,y,lambda)
 	(n,d) = size(X)
 
 	# Define an objective that will operate on a subset of the data called Xs
-	funObj(w) = logisticObj(w,Xs,y)
+	funObj(w) = logisticObjL0(w,Xs,y, lambda)
 
 	# Start out just using the bias variable (assumed to be in first column),
 	# and record 'score' which is the loss plus regularizer
@@ -34,14 +34,19 @@ function logRegL0(X,y,lambda)
 			@printf("%d ",S[j])
 		end
 		@printf("\n")
-
 		for j in setdiff(1:d,S)
 			# Fit the model with 'j' added to the feature set 'S'
 			# then compute the score and update 'minScore' and 'minS'
 			Sj = [S;j]
 			Xs = X[:,Sj]
-
-			funObj(w) = logisticObjL0(w, X, y, lambda)
+			w = zeros(length(Sj),1)
+			w = findMin(funObj,w,verbose=false)
+			(f,~) = funObj(w)
+			score = f + lambda*length(S)
+			if score < minScore
+				minScore = score
+				minS = Sj
+			end
 		end
 		S = minS
 	end
@@ -61,7 +66,7 @@ end
 
 function logisticObjL0(w,X,y, lambda)
 	yXw = y.*(X*w)
-	f = sum(log.(1 .+ exp.(-yXw)))
-	g = -X'*(y./(1 .+ exp.(yXw)))
+	f = sum(log.(1 .+ exp.(-yXw))) + lambda*(count(w.!=0))
+	g = (-X'*(y./(1 .+ exp.(yXw))))
 	return (f,g)
 end

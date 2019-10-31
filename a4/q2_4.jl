@@ -17,7 +17,8 @@ Xtest = standardizeCols(Xtest,mu=mu,sigma=sigma)
 Xtest = [ones(t,1) Xtest]
 
 # Fit logistic regression model with L2-regularization
-include("logReg.jl")
+include("logRegL0.jl")
+lambda = 1
 model = logRegL0(X,y,lambda)
 
 # Count number of non-zeroes in model
