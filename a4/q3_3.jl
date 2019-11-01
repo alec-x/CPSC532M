@@ -18,8 +18,12 @@ function softMaxClassifier(X,y)
 end
 
 function softMaxObj(w,X,y)
+	(n,d) = size(X)
 	k = trunc(Int,size(w)[1]/d) # number of classes
 	wNew = reshape(w, k, d)
-	c = collect(1:k)
-	sum(I*(y .== c))
+
+	for c in 1:k
+		for j in 1:ds
+		wNew[c,j] = (y .== c).*(-X[:,c]) + #...
+	end
 end
