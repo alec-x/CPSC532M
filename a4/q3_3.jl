@@ -19,6 +19,8 @@ validError = mean(yhat .!= ytest)
 @show(validError)
 
 # Plot results
+#=
 k = maximum(y)
 include("plot2Dclassifier.jl")
 plot2Dclassifier(X,y,model,Xtest=Xtest,ytest=ytest,biasIncluded=true,k=5)
+=#

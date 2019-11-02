@@ -3,7 +3,7 @@ function softMaxClassifier(X,y)
 	(n,d) = size(X)
 	k = size(unique(y))[1]
 	# Initial guess
-	w = zeros(d*k)
+	w = zeros(d*k) .+ 10
 	w = findMin(funObj,w,verbose=false, derivativeCheck=true)
 	w = reshape(w, k, d)
 	predict(Xhat) = sort!(Xhat*w',dims=2)[:,end]
@@ -20,16 +20,13 @@ function softMaxObj(w,X,y)
 	gradMatrix = zeros(k,d)
 
 	for i in 1:n
-		f += ((-1)*(X*wNew')[i,y[i]] + log(sum(exp.((X*wNew')[i,:]))))[1]
+		f += -(wNew[y[i],:]'*X[i,:]) + log(sum(exp.((wNew*X[i,:]))))
 	end
 
 	# Calculates the kxd matrix of partial derivatives
 	for c in 1:k
 		for j in 1:d
-			for i in 1:n
-				g += ((-1)*(y .== c)[i] + ((1 / sum(exp.((X*wNew')[i,:]))) * (exp((X*wNew')[i,c])))) * X[i,j]
-			end
-			gradMatrix[c,j] = g
+			gradMatrix[c,j] = sum((sum(exp.(wNew*X'), dims=1).^-1 .* exp.(wNew[c,:]'*X') .+ -(y .== c)').*X[:,j]')
 		end
 	end
 
