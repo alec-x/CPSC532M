@@ -1,5 +1,4 @@
-using Printf
-using LinearAlgebra
+using Printf, LinearAlgebra
 include("misc.jl")
 
 function findMin(funObj,w;maxIter=100,epsilon=1e-2,derivativeCheck=false,verbose=true)
@@ -39,16 +38,22 @@ function findMin(funObj,w;maxIter=100,epsilon=1e-2,derivativeCheck=false,verbose
 		while fNew > f - gamma*alpha*gg
 
 			if verbose
-				@printf("Backtracking\n")
+				@printf("Backtracking, step size = %f, fNew = %f\n",alpha,fNew)
 			end
 
-			# Fit a degree-2 polynomial to set step-size
-			alpha = alpha^2*gg/(2(fNew - f + alpha*gg))
+			if isfinitereal(fNew)
+				# Fit a degree-2 polynomial to set step-size
+				alpha = alpha^2*gg/(2(fNew - f + alpha*gg))
+			else
+				alpha /= 2
+			end
 
 			# Try out the smaller step-size
 			wNew = w - alpha*g
 			(fNew,gNew) = funObj(wNew)
 		end
+
+		alphaUsed = alpha
 
 		# Guess the step-size for the next iteration
 		y = gNew - g
@@ -60,6 +65,7 @@ function findMin(funObj,w;maxIter=100,epsilon=1e-2,derivativeCheck=false,verbose
 		end
 
 		# Accept the new parameters/function/gradient
+		wDiffNorm = norm(wNew - w,Inf)
 		w = wNew
 		f = fNew
 		g = gNew
@@ -67,7 +73,7 @@ function findMin(funObj,w;maxIter=100,epsilon=1e-2,derivativeCheck=false,verbose
 		# Print out some diagnostics
 		gradNorm = norm(g,Inf)
 		if verbose
-			@printf("%6d %15.5e %15.5e %15.5e\n",i,alpha,f,gradNorm)
+			@printf("%6d %15.5e %15.5e %15.5e\n",i,alphaUsed,f,gradNorm)
 		end
 
 		# We want to stop if the gradient is really small
@@ -77,13 +83,20 @@ function findMin(funObj,w;maxIter=100,epsilon=1e-2,derivativeCheck=false,verbose
 			end
 			return w
 		end
+
+		if wDiffNorm < epsilon^2
+			if verbose
+				@printf("Change in w is below (optimality tolerance)^2\n")
+			end
+			return w
+		end
+
 	end
 	if verbose
 		@printf("Reached maximum number of iterations\n")
 	end
 	return w
 end
-
 
 
 function findMinL1(funObj,w,lambda;maxIter=100,epsilon=1e-2)
@@ -103,6 +116,7 @@ function findMinL1(funObj,w,lambda;maxIter=100,epsilon=1e-2)
 
 		# Gradient step on smoooth part
 		wNew = w - alpha*g
+
 		# Proximal step on non-smooth part
 		wNew = sign.(wNew).*max.(abs.(wNew) .- lambda*alpha,0)
 		(fNew,gNew) = funObj(wNew)
@@ -134,7 +148,7 @@ function findMinL1(funObj,w,lambda;maxIter=100,epsilon=1e-2)
 		g = gNew
 
 		# Print out some diagnostics
-		optCond = norm(w-sign.(w-g).*max.(abs.(w-g).-lambda,0),Inf)
+		optCond = norm(w-sign.(w-g).*max.(abs.(w-g) .- lambda,0),Inf)
 		@printf("%6d %15.5e %15.5e %15.5e\n",i,alpha,f+lambda*norm(w,1),optCond)
 
 		# We want to stop if the gradient is really small
