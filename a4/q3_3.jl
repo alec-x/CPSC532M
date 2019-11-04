@@ -1,4 +1,5 @@
 using Printf
+using Statistics
 include("misc.jl")
 include("findMin.jl")
 

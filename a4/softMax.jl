@@ -6,7 +6,8 @@ function softMaxClassifier(X,y)
 	w = zeros(d*k) .+ 10
 	w = findMin(funObj,w,verbose=false, derivativeCheck=true)
 	w = reshape(w, k, d)
-	predict(Xhat) = sort!(Xhat*w',dims=2)[:,end]
+	
+	predict(Xhat) = [class[2] for class in argmax(Xhat*w',dims = 2)]
 
 	return LinearModel(predict,w)
 end
