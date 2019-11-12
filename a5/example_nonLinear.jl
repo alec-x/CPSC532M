@@ -7,7 +7,7 @@ data = load("basisData.jld")
 (X,y,Xtest,ytest) = (data["X"],data["y"],data["Xtest"],data["ytest"])
 
 # Fit a least squares model
-include("leastSquares.jl")
+include("q1_1.jl")
 lambda = 1
 model = leastSquaresBiasL2(X,y,lambda)
 
@@ -28,3 +28,4 @@ plot(X,y,"b.")
 Xhat = minimum(X):.1:maximum(X)
 yhat = model.predict(Xhat[:,:])
 plot(Xhat,yhat,"g")
+show()
