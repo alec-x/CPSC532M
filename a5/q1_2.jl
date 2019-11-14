@@ -3,7 +3,7 @@ include("misc.jl")
 
 function leastSquaresKernelBasis(X,y,lambda,p)
 	n = size(X,1)
-    u = (polyKernel(X,X,p) + lambda*I)^-1*y
+    u = (polyKernel(X,X,p) + lambda*I) \ y
 	# Make linear prediction function
 	predict(Xhat) = polyKernel(Xhat, X,p)*u
 
