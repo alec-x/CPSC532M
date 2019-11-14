@@ -3,7 +3,7 @@ include("misc.jl")
 
 function GaussianRBFKernelBasis(X,y,lambda,sigma)
 	n = size(X,1)
-    u = (GaussianRBFKernel(X,X,sigma) + lambda*I)^-1*y
+    u = (GaussianRBFKernel(X,X,sigma) + lambda*I) \ y
 	# Make linear prediction function
 	predict(Xhat) = GaussianRBFKernel(Xhat, X, sigma)*u
 
