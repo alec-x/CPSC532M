@@ -31,11 +31,8 @@ end
 
 function leastSquaresBasis(x,y,p)
 	Z = polyBasis(x,p)
-
 	v = (Z'*Z)\(Z'*y)
-
 	predict(xhat) = polyBasis(xhat,p)*v
-
 	return LinearModel(predict,v)
 end
 

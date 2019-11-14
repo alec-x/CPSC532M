@@ -9,7 +9,7 @@ data = load("basisData.jld")
 # Fit a least squares model
 include("q1_3.jl")
 
-lambda = 1e-3
+lambda = 1e-6
 sigma = 1
 
 model = GaussianRBFKernelBasis(X,y, lambda, sigma)
