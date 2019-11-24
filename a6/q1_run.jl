@@ -7,7 +7,7 @@ X = load("highway.jld","X")
 include("q1.jl")
 k = 5
 epsilon = 0.01
-model = PCA_gradient(X,k, epsilon)
+model = robustPCA(X,k, epsilon)
 
 Z = model.compress(X)
 Xhat = model.expand(Z)

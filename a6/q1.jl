@@ -31,7 +31,7 @@ function expandFunc(Z,W,mu)
     return Z*W + repeat(mu,t,1)
 end
 
-function PCA_gradient(X,k, epsilon)
+function robustPCA(X,k, epsilon)
     (n,d) = size(X)
 
     # Subtract mean
@@ -66,19 +66,19 @@ function PCA_gradient(X,k, epsilon)
 
 
     # We didn't enforce that W was orthogonal so we need to optimize to find Z
-    compress(Xhat) = compress_gradientDescent(Xhat,W,mu)
+    compress(Xhat) = compress_gradientDescent(Xhat,W,mu, epsilon)
     expand(Z) = expandFunc(Z,W,mu)
 
     return CompressModel(compress,expand,W)
 end
 
-function compress_gradientDescent(Xhat,W,mu)
+function compress_gradientDescent(Xhat,W,mu, epsilon)
     (t,d) = size(Xhat)
     k = size(W,1)
     Xcentered = Xhat - repeat(mu,t,1)
     Z = zeros(t,k)
 
-    funObj(z) = pcaObjZ(z,Xcentered,W)
+    funObj(z) = pcaObjZ(z,Xcentered,W, epsilon)
     Z[:] = findMin(funObj,Z[:],verbose=false)
     return Z
 end
@@ -125,11 +125,9 @@ function pcaObjW(w,X,Z, epsilon)
 end
 
 function huberLoss(R, epsilon)
-
-	yes = abs.(R) .<= epsilon
-	notYesCount = length(findall(iszero, yes))
-
-	f = (1/2)sum(R[yes].^2)
-    f += sum(epsilon*(abs.(R[.!yes]) - (0.5*epsilon)*ones(notYesCount,1)))
+	case = abs.(R) .<= epsilon
+	close = findall(case)
+	far = findall(.!case)
+	f = sum((1/2)R[close].^2) + epsilon*sum(abs.(R[far]) .- (1/2)epsilon)
     return f
 end
