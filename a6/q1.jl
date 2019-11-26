@@ -98,7 +98,12 @@ function pcaObjZ(z,X,W, epsilon)
     dR = R
 
     # Multiply by W' to get elements of gradient
-    G = dR*W'
+	case = abs.(dR) .<= epsilon
+	close = findall(case)
+	far = findall(.!case)
+	dR[far] = epsilon * sign.(dR[far])
+
+	G = dR*W'
 
     # Return function and gradient vector
     return (f,G[:])
@@ -118,7 +123,12 @@ function pcaObjW(w,X,Z, epsilon)
     dR = R
 
     # Multiply by Z' to get elements of gradient
-    G = Z'dR
+	case = abs.(dR) .<= epsilon
+	close = findall(case)
+	far = findall(.!case)
+	dR[far] = epsilon * sign.(dR[far])
+
+	G = Z'dR
 
     # Return function and gradient vector
     return (f,G[:])

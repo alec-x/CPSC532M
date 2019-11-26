@@ -2,12 +2,13 @@
 using JLD
 X = load("highway.jld","X")
 (n,d) = size(X)
+#Xsample = X[1:50,:] # Subset of X, for debugging purposes
 
 # Fit PCA model
 include("q1.jl")
 k = 5
 epsilon = 0.01
-model = robustPCA(X,k, epsilon)
+model = robustPCA(X,k,epsilon)
 
 Z = model.compress(X)
 Xhat = model.expand(Z)
