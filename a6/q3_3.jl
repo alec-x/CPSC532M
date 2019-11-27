@@ -35,8 +35,8 @@ function NeuralNet_backprop(bigW,x,y,nHidden)
 	v = bigW[ind+1:end]
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 
 	#### Forward propagation
@@ -47,8 +47,8 @@ function NeuralNet_backprop(bigW,x,y,nHidden)
 	end
 	yhat = v'*h(z[end])
 
-	r = yhat-y
-	f = (1/2)r^2
+	r = residual(yhat, y)
+	f = lossFunction(r)
 
 	#### Backpropagation
 	dr = r
@@ -106,8 +106,8 @@ function NeuralNet_predict(bigW,Xhat,nHidden)
 	v = bigW[ind+1:end]
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 	#### Forward propagation on each example to make predictions
 	yhat = zeros(t,1)
@@ -163,8 +163,8 @@ function NeuralNetMulti_backprop(bigW,x,y,k,nHidden)
 	v = reshape(v,nHidden[end],k)
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 	#### Forward propagation
 	z = Array{Any}(undef,nLayers)
@@ -174,8 +174,8 @@ function NeuralNetMulti_backprop(bigW,x,y,k,nHidden)
 	end
 	yhat = v'*h(z[end])
 
-	r = yhat-y
-	f = (1/2)sum(r.^2)
+	r = residual(yhat, y)
+	f = lossFunction(r)
 
 	#### Backpropagation
 	dr = r
@@ -246,7 +246,7 @@ function NeuralNet_predict(bigW,Xhat,k,nHidden)
 	v = reshape(v,nHidden[end],k)
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
+	h(z) = activation(z)
 
 	#### Forward propagation on each example to make predictions
 	yhat = zeros(t,k)
@@ -260,4 +260,20 @@ function NeuralNet_predict(bigW,Xhat,k,nHidden)
 		yhat[i,:] = v'*h(z[end])
 	end
 	return mapslices(argmax,yhat,dims=2)
+end
+
+function activation(X)
+	return tanh.(X)
+end
+
+function derivativeActivation(X)
+	return (sech.(X)).^2
+end
+
+function residual(yhat, y)
+	return yhat - y
+end
+
+function lossFunction(r)
+	return (1/2)r.^2
 end

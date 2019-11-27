@@ -28,16 +28,15 @@ end
 
 # Choose network structure and randomly initialize weights
 include("q3_3.jl")
-nHidden = [10]
+nHidden = [64]
 @show nHidden
 nParams = NeuralNetMulti_nParams(d,k,nHidden)
 w = randn(nParams,1)
 
 # Train with stochastic gradient
-maxIter = 100000
-stepSize = 1e-3
+maxIter = 65000
+stepSize = 3e-4
 for iter in 1:maxIter
-
 	# The stochastic gradient update:
 	i = rand(1:n)
 	(f,g) = NeuralNetMulti_backprop(w,X[i,:],Y[i,:],k,nHidden)
