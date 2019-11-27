@@ -11,15 +11,15 @@ d = 2
 
 # Choose network structure and randomly initialize weights
 include("NeuralNet.jl")
-nHidden = [3]
+nHidden = [16]
 nParams = NeuralNet_nParams(d,nHidden)
 w = randn(nParams,1)
 
 # Train with stochastic gradient
-maxIter = 10000
-stepSize = 1e-4
+maxIter = 600000
+startStepSize = 1e-4
 for t in 1:maxIter
-
+	stepSize = startStepSize/(0.5*log(3+t))
 	# The stochastic gradient update:
 	i = rand(1:n)
 	(f,g) = NeuralNet_backprop(w,X[i,:],y[i],nHidden)

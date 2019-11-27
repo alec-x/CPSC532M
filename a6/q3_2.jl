@@ -35,8 +35,8 @@ function NeuralNet_backprop(bigW,x,y,nHidden)
 	v = bigW[ind+1:end]
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 
 	#### Forward propagation
@@ -106,8 +106,8 @@ function NeuralNet_predict(bigW,Xhat,nHidden)
 	v = bigW[ind+1:end]
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 	#### Forward propagation on each example to make predictions
 	yhat = zeros(t,1)
@@ -163,8 +163,8 @@ function NeuralNetMulti_backprop(bigW,x,y,k,nHidden)
 	v = reshape(v,nHidden[end],k)
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
-	dh(z) = (sech.(z)).^2
+	h(z) = activation(z)
+	dh(z) = derivativeActivation(z)
 
 	#### Forward propagation
 	z = Array{Any}(undef,nLayers)
@@ -246,7 +246,7 @@ function NeuralNet_predict(bigW,Xhat,k,nHidden)
 	v = reshape(v,nHidden[end],k)
 
 	#### Define activation function and its derivative
-	h(z) = tanh.(z)
+	h(z) = activation(z)
 
 	#### Forward propagation on each example to make predictions
 	yhat = zeros(t,k)
@@ -260,4 +260,14 @@ function NeuralNet_predict(bigW,Xhat,k,nHidden)
 		yhat[i,:] = v'*h(z[end])
 	end
 	return mapslices(argmax,yhat,dims=2)
+end
+
+function activation(X)
+	# RELU from https://int8.io/neural-networks-in-julia-hyperbolic-tangent-and-relu/
+	# return tanh.(X)
+	return X .* (X .> 0)
+end
+
+function derivativeActivation(X)
+	return (X .> 0)
 end
