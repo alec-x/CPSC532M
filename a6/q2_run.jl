@@ -4,8 +4,9 @@ dataTable = readdlm("animals.csv",',')
 X = float(real(dataTable[2:end,2:end]))
 (n,d) = size(X)
 
-include("MDS.jl")
-Z = MDS(X)
+include("q2.jl")
+k = 3
+Z = MDS(X, k)
 
 # Plot matrix as image
 using PyPlot

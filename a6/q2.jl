@@ -2,12 +2,11 @@ include("misc.jl")
 include("PCA.jl")
 include("findMin.jl")
 
-function MDS(X)
+function MDS(X, k)
     (n,d) = size(X)
 
     # Compute all distances
-    D = distancesSquared(X,X)
-    D = sqrt.(abs.(D))
+    D = ISOMAP(X,k)
 
     # Initialize low-dimensional representation with PCA
     model = PCA(X,2)
@@ -42,4 +41,26 @@ function stress(z,D)
         end
     end
     return (f,G[:])
+end
+
+function ISOMAP(X, k)
+    (n,d) = size(X)
+    k = min(n,k) # To save you some debuggin
+	G = zeros(n,n)
+
+    for i in 1 : n
+	  distances = distancesSquared(X,X[i,:]')
+      sortedDist = sortperm(distances[:,1])[2:k+1] # dont include distance to self
+
+	  for j in 1 : size(sortedDist)[1]
+	  	G[i,sortedDist[j]] = distances[sortedDist[j]]
+  	  end
+    end
+	D = zeros(n,n)
+	for i in 1:n
+	  for j in 1:n
+		D[i,j] = dijkstra(G,i,j)
+	  end
+	end
+    return G
 end
