@@ -1,99 +1,10 @@
 # We use nHidden as a vector, containing the number of hidden units in each layer
 # Definitely not the most efficient implementation!
 
-# Function that returns total number of parameters
-function NeuralNet_nParams(d,nHidden)
-
-	# Connections from inputs to first hidden layer
-	nParams = d*nHidden[1]
-
-	# Connections between hidden layers
-	for h in 2:length(nHidden)
-		nParams += nHidden[h-1]*nHidden[h]
-	end
-
-	# Connections from last hidden layer to output
-	nParams += nHidden[end]
-
-end
-
-# Compute squared error and gradient
-# for a single training example (x,y)
-# (x is assumed to be a column-vector)
-function NeuralNet_backprop(bigW,x,y,nHidden)
-	d = length(x)
-	nLayers = length(nHidden)
-
-	#### Reshape 'bigW' into vectors/matrices
-	W1 = reshape(bigW[1:nHidden[1]*d],nHidden[1],d)
-	ind = nHidden[1]*d
-	Wm = Array{Any}(undef,nLayers-1)
-	for layer in 2:nLayers
-		Wm[layer-1] = reshape(bigW[ind+1:ind+nHidden[layer]*nHidden[layer-1]],nHidden[layer],nHidden[layer-1])
-		ind += nHidden[layer]*nHidden[layer-1]
-	end
-	v = bigW[ind+1:end]
-
-	#### Define activation function and its derivative
-	h(z) = activation(z)
-	dh(z) = derivativeActivation(z)
-
-
-	#### Forward propagation
-	z = Array{Any}(undef,nLayers)
-	z[1] = W1*x
-	for layer in 2:nLayers
-		z[layer] = Wm[layer-1]*h(z[layer-1])
-	end
-	yhat = v'*h(z[end])
-
-	r = residual(yhat, y)
-	f = lossFunction(r)
-
-	#### Backpropagation
-	dr = r
-	err = dr
-
-	# Output weights
-	Gout = err*h(z[end])
-
-	Gm = Array{Any}(undef,nLayers-1)
-	if nLayers > 1
-		# Last Layer of Hidden Weights
-		backprop = err*(dh(z[end]).*v)
-		Gm[end] = backprop*h(z[end-1])'
-
-		# Other Hidden Layers
-		for layer in nLayers-2:-1:1
-			backprop = (Wm[layer+1]'*backprop).*dh(z[layer+1])
-			Gm[layer] = backprop*h(z[layer])'
-		end
-
-		# Input Weights
-		backprop = (Wm[1]'*backprop).*dh(z[1])
-		G1 = backprop*x'
-	else
-		# Input weights
-		G1 = err*(dh(z[1]).*v)*x'
-	end
-
-	#### Put gradients into vector
-	g = zeros(size(bigW))
-	g[1:nHidden[1]*d] = G1
-	ind = nHidden[1]*d
-	for layer in 2:nLayers
-		g[ind+1:ind+nHidden[layer]*nHidden[layer-1]] = Gm[layer-1]
-		ind += nHidden[layer]*nHidden[layer-1]
-	end
-	g[ind+1:end] = Gout
-
-	return (f,g)
-end
-
 # Computes predictions for a set of examples X
 function NeuralNet_predict(bigW,Xhat,nHidden)
 	(t,d) = size(Xhat)
-	nLayers = length(nHidden)
+	nLayers = 5#length(nHidden)
 
 	#### Reshape 'bigW' into vectors/matrices
 	W1 = reshape(bigW[1:nHidden[1]*d],nHidden[1],d)
@@ -147,7 +58,7 @@ end
 # Compute squared error and gradient
 # for a single training example (x,y)
 # (x is assumed to be a column-vector)
-function NeuralNetMulti_backprop(bigW,x,y,k,nHidden)
+function NeuralNetMulti_backprop(bigW,x,y,k,nHidden, lambda)
 	d = length(x)
 	nLayers = length(nHidden)
 
@@ -175,7 +86,7 @@ function NeuralNetMulti_backprop(bigW,x,y,k,nHidden)
 	yhat = v'*h(z[end])
 
 	r = residual(yhat, y)
-	f = lossFunction(r)
+	f = lossFunction(r, v, W1, lambda)
 
 	#### Backpropagation
 	dr = r
@@ -274,6 +185,6 @@ function residual(yhat, y)
 	return yhat - y
 end
 
-function lossFunction(r)
-	return (1/2)r.^2
+function lossFunction(r, v, W, lambda)
+	return (1/2)r.^2 .+ lambda/2*sum(v.^2) .+ lambda/2*sum(W.^2)
 end
