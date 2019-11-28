@@ -49,12 +49,10 @@ function ISOMAP(X, k)
 	# G is adjacency matrix
 	G = ones(n,n)
 	G = G*Inf # Distance is infinity if not nearest neighbhor
-
     for i in 1 : n
 	  # do this for each example
 	  distances = distancesSquared(X,X[i,:]')
       sortedDist = sortperm(distances[:,1])[2:k+1] # dont include distance to self
-
 	  # j here is 1:k, iterate each nearest neighbhor
 	  for j in 1 : size(sortedDist)[1]
 		# Adjacency graph must go both ways.
@@ -62,10 +60,8 @@ function ISOMAP(X, k)
 		G[sortedDist[j],i] = distances[sortedDist[j]]
   	  end
     end
-
 	# D is actual geodesic distance matrix
 	D = zeros(n,n)
-
 	for i in 1:n
 	  for j in 1:n
 		D[i,j] = dijkstra(G,i,j)

@@ -264,7 +264,6 @@ end
 
 function activation(X)
 	# RELU from https://int8.io/neural-networks-in-julia-hyperbolic-tangent-and-relu/
-	# return tanh.(X)
 	return X .* (X .> 0)
 end
 
