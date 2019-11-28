@@ -4,7 +4,7 @@ dataTable = readdlm("animals.csv",',')
 X = float(real(dataTable[2:end,2:end]))
 (n,d) = size(X)
 
-include("q2.jl")
+include("q2_1.jl")
 k = 3
 Z = MDS(X, k)
 
