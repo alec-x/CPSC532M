@@ -4,7 +4,7 @@
 # Computes predictions for a set of examples X
 function NeuralNet_predict(bigW,Xhat,nHidden)
 	(t,d) = size(Xhat)
-	nLayers = 5#length(nHidden)
+	nLayers = length(nHidden)
 
 	#### Reshape 'bigW' into vectors/matrices
 	W1 = reshape(bigW[1:nHidden[1]*d],nHidden[1],d)
@@ -174,12 +174,14 @@ function NeuralNet_predict(bigW,Xhat,k,nHidden)
 end
 
 function activation(X)
-	return tanh.(X)
+	# RELU from https://int8.io/neural-networks-in-julia-hyperbolic-tangent-and-relu/
+	return X .* (X .> 0)
 end
 
 function derivativeActivation(X)
-	return (sech.(X)).^2
+	return (X .> 0)
 end
+
 
 function residual(yhat, y)
 	return yhat - y
